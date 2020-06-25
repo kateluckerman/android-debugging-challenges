@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.util.Log;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.codepath.asynchttpclient.AsyncHttpClient;
@@ -33,25 +34,31 @@ public class MoviesActivity extends AppCompatActivity {
         setContentView(R.layout.activity_movies);
         rvMovies = findViewById(R.id.rvMovies);
 
+        movies = new ArrayList<>();
+
         // Create the adapter to convert the array to views
-        MoviesAdapter adapter = new MoviesAdapter(movies);
+        adapter = new MoviesAdapter(movies);
 
         // Attach the adapter to a ListView
         rvMovies.setAdapter(adapter);
+
+        rvMovies.setLayoutManager(new LinearLayoutManager(this, LinearLayoutManager.VERTICAL, false));
 
         fetchMovies();
     }
 
 
     private void fetchMovies() {
-        String url = " https://api.themoviedb.org/3/movie/now_playing?api_key=";
+        String url = "https://api.themoviedb.org/3/movie/now_playing?api_key=851c4b14b4fdb5907d0434f6ec035845";
         AsyncHttpClient client = new AsyncHttpClient();
         client.get(url, null, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Headers headers, JSON response) {
                 try {
                     JSONArray moviesJson = response.jsonObject.getJSONArray("results");
-                    movies = Movie.fromJSONArray(moviesJson);
+                    movies.addAll(Movie.fromJSONArray(moviesJson));
+                    adapter.notifyDataSetChanged();
+                    Log.d("MA", "try end");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
